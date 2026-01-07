@@ -8,11 +8,13 @@
 // valgrind ./main
 // to verify that there are no memory leaks
 
+
+template<typename T>
 struct Demo
 {
-	Demo(const size_t size) : size(size), _data(new int[size])
+	Demo(const size_t size) : size(size), _data(new T[size])
 	{
-		std::cout << "Demo::Demo(const size_t) - initialize _data to size " << size << " with " << sizeof(int) << " bytes each" << std::endl;
+		std::cout << "Demo::Demo(const size_t) - initialize _data to size " << size << " with " << sizeof(_data[0]) << " bytes each" << std::endl;
 	}
 
 	Demo() : size{0}, _data(nullptr)
@@ -20,13 +22,13 @@ struct Demo
 		std::cout << "Demo::Demo() - initialized _data to nullptr" << std::endl;
 	}
 
-	Demo(const Demo& other) : size(other.size), _data(new int[size])
+	Demo(const Demo& other) : size(other.size), _data(new T[size])
 	{
 		std::cout << "Demo::Demo(const Demo&) - copied " << size << " data from other" << std::endl;
 		for (size_t i=0; i<size; i++) {_data[i] = other._data[i];}
 	}
 	
-	Demo(Demo&& other) : size(other.size), _data(other._data)
+	Demo(Demo&& other) : size(other.size), _data(&other._data)
 	{
 		other._data = nullptr;
 		std::cout << "Demo::Demo(Demo&&) - moved ownership of " << size << " data from other" << std::endl;
@@ -35,7 +37,7 @@ struct Demo
 	virtual ~Demo()
 	{
 		size_t freed_space = 0;
-		if (_data) {freed_space = size * sizeof(int);}
+		if (_data) {freed_space = size * sizeof(_data[0]);}
 
 		std::cout << "Demo::~Demo() - freed " << freed_space << " bytes" << std::endl;
 		delete[] _data;
@@ -51,7 +53,7 @@ struct Demo
 
 		size = other.size;
 		delete[] _data;
-		_data = new int[size];
+		_data = new T[size];
 		for (size_t i=0; i<size; i++) {_data[i] = other._data[i];}
 
 		std::cout << "Demo::operator=(const Demo&) - copied " << size << " data from other" << std::endl;
@@ -76,10 +78,11 @@ struct Demo
 
 
 	size_t size;
-	int* _data;
+	T* _data;
 };
 
-std::ostream& operator<<(std::ostream& os, const Demo& D)
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const Demo<T>& D)
 {
 	std::cout << "[ ";
 	for (size_t i=0; i<D.size; i++)
@@ -93,13 +96,18 @@ std::ostream& operator<<(std::ostream& os, const Demo& D)
 
 int main()
 {
-	Demo a; //default constructor
-	Demo b = Demo(10); //explicit constructor!
-	Demo c(b); //copy constructor
-	Demo d(std::move(c)); //move constructor
-	Demo e = std::move(d); //move constructor
-	a = std::move(e); //move assignment (make sure this frees any resources a previously owned)
-	a = b; //copy assignment (make sure this frees any resources a previously owned)
+	using Demo_t = Demo<short>;
+
+	Demo<Demo_t> a(10);
+	std::cout << "a:\n" << a << std::endl;
+
+	for (size_t i=0; i<a.size; i++)
+	{
+		a._data[i] = Demo_t(i);
+	}
+
+	std::cout << "\na:\n" << a << std::endl;
+
 	
 	return 0;	
 }
