@@ -1,13 +1,5 @@
 #include <iostream>
 
-//compile with:
-// g++ -o main constructors.cpp
-// run with:
-// ./main
-// OR
-// valgrind ./main
-// to verify that there are no memory leaks
-
 struct Demo
 {
 	Demo(const size_t size) : size(size), _data(new int[size])
@@ -100,6 +92,6 @@ int main()
 	Demo e = std::move(d); //move constructor
 	a = std::move(e); //move assignment (make sure this frees any resources a previously owned)
 	a = b; //copy assignment (make sure this frees any resources a previously owned)
-	
+
 	return 0;	
 }

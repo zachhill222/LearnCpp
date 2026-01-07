@@ -1,14 +1,5 @@
 #include <iostream>
 
-//compile with:
-// g++ -o main constructors.cpp
-// run with:
-// ./main
-// OR
-// valgrind ./main
-// to verify that there are no memory leaks
-
-
 template<typename T>
 struct Demo
 {
