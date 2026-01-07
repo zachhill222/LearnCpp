@@ -5,7 +5,7 @@ struct Demo
 {
 	Demo(const size_t size) : size(size), _data(new T[size])
 	{
-		std::cout << "Demo::Demo(const size_t) - initialize _data to size " << size << " with " << sizeof(_data[0]) << " bytes each" << std::endl;
+		std::cout << "Demo::Demo(const size_t) - initialize _data to size " << size << " with " << sizeof(T) << " bytes each" << std::endl;
 	}
 
 	Demo() : size{0}, _data(nullptr)
@@ -28,7 +28,7 @@ struct Demo
 	virtual ~Demo()
 	{
 		size_t freed_space = 0;
-		if (_data) {freed_space = size * sizeof(_data[0]);}
+		if (_data) {freed_space = size * sizeof(T);}
 
 		std::cout << "Demo::~Demo() - freed " << freed_space << " bytes" << std::endl;
 		delete[] _data;
